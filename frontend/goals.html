@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrackWallet — Savings Goals</title>
+  <meta name="description" content="Track emergency fund, car, bike, home, and business expansion savings goals">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .goal-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-lg);
+    }
+    .goal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+    }
+    .goal-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      background: rgba(99,102,241,0.1);
+      color: var(--primary-light);
+      margin-bottom: var(--space-md);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="app-sidebar"></div>
+
+    <main class="main-content">
+      <div id="app-mobile-header"></div>
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Savings Goals</h1>
+          <p class="page-subtitle">Set financial targets for Emergency Fund, Car, Bike, Home, and Business Expansion</p>
+        </div>
+        <button class="btn btn-primary" onclick="openAddGoalModal()">
+          <span class="material-icons-round">add</span> Create Goal
+        </button>
+      </div>
+
+      <!-- Goals Grid -->
+      <div class="goal-cards-grid" id="goals-grid">
+        <div class="loading"><div class="spinner"></div><span>Loading goals...</span></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Goal Modal -->
+  <div class="modal-overlay" id="goal-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Savings Goal</h3>
+        <button class="modal-close" onclick="closeModal('goal-modal')">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+
+      <form id="goal-form">
+        <div class="form-group">
+          <label class="form-label">Goal Name *</label>
+          <input type="text" class="form-control" id="goal-name" placeholder="e.g. Emergency Fund, New Bike, Business Expansion" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Target Amount (₹) *</label>
+            <input type="number" step="0.01" class="form-control" id="goal-target" placeholder="100000" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Current Saved (₹)</label>
+            <input type="number" step="0.01" class="form-control" id="goal-current" placeholder="0.00">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Deadline</label>
+            <input type="date" class="form-control" id="goal-deadline">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select class="form-control" id="goal-priority">
+              <option value="HIGH">High Priority</option>
+              <option value="MEDIUM" selected>Medium Priority</option>
+              <option value="LOW">Low Priority</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('goal-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Goal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="app-bottom-nav"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/goals.js"></script>
+</body>
+</html>
