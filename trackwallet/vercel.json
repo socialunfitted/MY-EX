@@ -2,24 +2,20 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/frontend/index.html"
-    },
-    {
       "source": "/frontend",
-      "destination": "/frontend/index.html"
+      "destination": "/index.html"
     },
     {
       "source": "/frontend/",
-      "destination": "/frontend/index.html"
+      "destination": "/index.html"
     },
     {
-      "source": "/index.html",
-      "destination": "/frontend/index.html"
+      "source": "/frontend/index.html",
+      "destination": "/index.html"
     },
     {
-      "source": "/(?!frontend/)(.*)",
-      "destination": "/frontend/$1"
+      "source": "/frontend/:path*",
+      "destination": "/:path*"
     }
   ]
 }

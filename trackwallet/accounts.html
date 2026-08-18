@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrackWallet — Accounts</title>
+  <meta name="description" content="Manage bank accounts, cash wallets, credit cards and finance accounts">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .account-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-lg);
+    }
+    .account-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .account-card:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-2px);
+    }
+    .account-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: var(--acc-color, var(--primary));
+    }
+    .account-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+    .account-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      background: rgba(255,255,255,0.05);
+      color: var(--acc-color, var(--primary));
+    }
+    .account-name { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+    .account-type { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .account-balance { font-size: 24px; font-weight: 800; margin: 12px 0 4px; letter-spacing: -0.02em; }
+    .account-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: var(--space-md);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="app-sidebar"></div>
+
+    <main class="main-content">
+      <div id="app-mobile-header"></div>
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Accounts</h1>
+          <p class="page-subtitle">Track your cash, bank accounts, wallets, and loan accounts</p>
+        </div>
+        <button class="btn btn-primary" onclick="openAddAccountModal()">
+          <span class="material-icons-round">add</span> Add Account
+        </button>
+      </div>
+
+      <!-- Net Balance Summary Card -->
+      <div class="card mb-lg card-glass flex items-center justify-between" style="padding:20px">
+        <div>
+          <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em">Total Account Assets</div>
+          <div style="font-size:28px;font-weight:800;color:var(--text-primary);margin-top:2px" id="total-assets-val">Loading...</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="recalculateAllBalances()">
+          <span class="material-icons-round">sync</span> Recalculate All Balances
+        </button>
+      </div>
+
+      <!-- Account Cards Grid -->
+      <div class="account-cards-grid" id="accounts-grid">
+        <div class="loading"><div class="spinner"></div><span>Loading accounts...</span></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Account Modal -->
+  <div class="modal-overlay" id="account-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="account-modal-title">Add Account</h3>
+        <button class="modal-close" onclick="closeModal('account-modal')">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+
+      <form id="account-form">
+        <input type="hidden" id="acc-id">
+
+        <div class="form-group">
+          <label class="form-label">Account Name *</label>
+          <input type="text" class="form-control" id="acc-name" placeholder="e.g. Kalaimani Bank, Cash" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Account Type *</label>
+            <select class="form-control" id="acc-type" required>
+              <option value="CASH">Cash</option>
+              <option value="BANK">Bank Account</option>
+              <option value="WALLET">Digital Wallet (UPI)</option>
+              <option value="LOAN">Loan Account</option>
+              <option value="CREDIT">Credit Card</option>
+              <option value="INVESTMENT">Investment</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Opening Balance (₹)</label>
+            <input type="number" step="0.01" class="form-control" id="acc-opening" placeholder="0.00">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Bank / Institution Name</label>
+          <input type="text" class="form-control" id="acc-institution" placeholder="e.g. Kalaimani Bank, SBI, HDFC">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Theme Color</label>
+            <input type="color" class="form-control" id="acc-color" value="#6366f1" style="height:40px;padding:2px">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Icon</label>
+            <select class="form-control" id="acc-icon">
+              <option value="account_balance_wallet">Wallet</option>
+              <option value="account_balance">Bank</option>
+              <option value="payments">Cash</option>
+              <option value="credit_card">Card</option>
+              <option value="savings">Savings</option>
+              <option value="trending_up">Investment</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea class="form-control" id="acc-notes" placeholder="Notes or account info"></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('account-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="app-bottom-nav"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/accounts.js"></script>
+</body>
+</html>

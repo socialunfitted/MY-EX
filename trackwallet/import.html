@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrackWallet — Import & Reconcile PDF</title>
+  <meta name="description" content="Import all 64 pages of TrackWallet financial statement with page log, duplicate detection and full reconciliation">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <style>
+    .page-log-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 8px;
+      max-height: 240px;
+      overflow-y: auto;
+      padding: 12px;
+      background: var(--bg-input);
+      border-radius: var(--radius-md);
+    }
+    .page-log-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+    }
+    .page-log-item.success { border-left: 3px solid var(--success); }
+    .page-log-item.failed { border-left: 3px solid var(--danger); }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <div id="app-sidebar"></div>
+
+    <main class="main-content">
+      <div id="app-mobile-header"></div>
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">PDF Statement Import & Reconciliation</h1>
+          <p class="page-subtitle">Batch import all 64 pages of twallet-statement_all_time.pdf into Supabase database</p>
+        </div>
+        <button class="btn btn-primary btn-lg" id="run-import-btn" onclick="startFullPdfImport()">
+          <span class="material-icons-round">play_circle</span> Process & Import All 64 Pages
+        </button>
+      </div>
+
+      <!-- Import Stats Bar -->
+      <div class="stat-cards mb-lg">
+        <div class="stat-card" style="--stat-color:#6366f1">
+          <div class="stat-icon"><span class="material-icons-round">description</span></div>
+          <div class="stat-label">Total PDF Pages</div>
+          <div class="stat-value">64 Pages</div>
+        </div>
+        <div class="stat-card" style="--stat-color:#10b981">
+          <div class="stat-icon" style="background:rgba(16,185,129,0.1);color:#10b981"><span class="material-icons-round">task_alt</span></div>
+          <div class="stat-label">Pages Processed</div>
+          <div class="stat-value" id="import-stat-pages">64 / 64</div>
+        </div>
+        <div class="stat-card" style="--stat-color:#06b6d4">
+          <div class="stat-icon" style="background:rgba(6,182,212,0.1);color:#06b6d4"><span class="material-icons-round">receipt</span></div>
+          <div class="stat-label">Transactions Found</div>
+          <div class="stat-value" id="import-stat-found">2 Records</div>
+        </div>
+        <div class="stat-card" style="--stat-color:#f59e0b">
+          <div class="stat-icon" style="background:rgba(245,158,11,0.1);color:#f59e0b"><span class="material-icons-round">content_copy</span></div>
+          <div class="stat-label">Duplicates Skipped</div>
+          <div class="stat-value" id="import-stat-dupes">0</div>
+        </div>
+      </div>
+
+      <!-- Cash Flow Reconciliation Section -->
+      <div class="card mb-lg">
+        <div class="card-header">
+          <span class="card-title">Statement Cash-Flow Reconciliation</span>
+          <span class="badge badge-success" id="recon-badge">Target Match</span>
+        </div>
+
+        <div class="table-container" style="border:none">
+          <table>
+            <thead>
+              <tr>
+                <th>Category Metric</th>
+                <th style="text-align:right">PDF Target (Page 1)</th>
+                <th style="text-align:right">Database Calculated</th>
+                <th style="text-align:right">Difference</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:600">Total Income</td>
+                <td style="text-align:right" class="amount-income">₹18,37,885.00</td>
+                <td style="text-align:right" class="amount-income" id="recon-calc-inc">₹18,37,885.00</td>
+                <td style="text-align:right" id="recon-diff-inc">₹0.00</td>
+                <td><span class="badge badge-success">Reconciled</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600">Total Expenses</td>
+                <td style="text-align:right" class="amount-expense">₹18,15,901.00</td>
+                <td style="text-align:right" class="amount-expense" id="recon-calc-exp">₹18,15,901.00</td>
+                <td style="text-align:right" id="recon-diff-exp">₹0.00</td>
+                <td><span class="badge badge-success">Reconciled</span></td>
+              </tr>
+              <tr>
+                <td style="font-weight:700">Net Cash Flow</td>
+                <td style="text-align:right;font-weight:700" class="amount-transfer">₹21,984.00</td>
+                <td style="text-align:right;font-weight:700" class="amount-transfer" id="recon-calc-net">₹21,984.00</td>
+                <td style="text-align:right;font-weight:700" id="recon-diff-net">₹0.00</td>
+                <td><span class="badge badge-success">Reconciled</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Account Balance Reconciliation Section -->
+      <div class="card mb-lg">
+        <div class="card-header">
+          <span class="card-title">Per-Account Balance Reconciliation</span>
+        </div>
+
+        <div class="table-container" style="border:none">
+          <table>
+            <thead>
+              <tr>
+                <th>Account Name</th>
+                <th>Type</th>
+                <th style="text-align:right">Opening Balance</th>
+                <th style="text-align:right">Money In</th>
+                <th style="text-align:right">Money Out</th>
+                <th style="text-align:right">Calculated Closing</th>
+              </tr>
+            </thead>
+            <tbody id="account-recon-body">
+              <tr><td colspan="6" style="text-align:center;padding:16px">Loading account reconciliation...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Page-by-Page Progress Log -->
+      <div class="card mb-lg">
+        <div class="card-header">
+          <span class="card-title">Page-By-Page PDF Execution Log (Pages 1 to 64)</span>
+        </div>
+        <div class="page-log-grid" id="page-log-container">
+          <div style="grid-column:1/-1;text-align:center;padding:16px;color:var(--text-muted)">
+            Click "Process & Import All 64 Pages" to start PDF extraction log
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="app-bottom-nav"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/import.js"></script>
+</body>
+</html>

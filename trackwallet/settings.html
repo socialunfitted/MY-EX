@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrackWallet — Settings</title>
+  <meta name="description" content="System settings, categories management, complete backup and restore">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <div class="app-layout">
+    <div id="app-sidebar"></div>
+
+    <main class="main-content">
+      <div id="app-mobile-header"></div>
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Settings</h1>
+          <p class="page-subtitle">Configure categories, subcategories, default currency, backup, and restore</p>
+        </div>
+      </div>
+
+      <!-- Settings Grid -->
+      <div class="grid-2">
+        <!-- Categories Manager -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Categories</span>
+            <button class="btn btn-primary btn-sm" onclick="openAddCatModal()">
+              <span class="material-icons-round">add</span> New Category
+            </button>
+          </div>
+
+          <div id="cat-settings-list" style="max-height:400px;overflow-y:auto">
+            <div class="loading"><div class="spinner"></div><span>Loading categories...</span></div>
+          </div>
+        </div>
+
+        <!-- Backup & Preferences -->
+        <div class="flex flex-col gap-lg">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Complete System Backup</span>
+            </div>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">
+              Export all transactions, accounts, categories, loans, budgets, and savings goals to a JSON backup file.
+            </p>
+            <button class="btn btn-success" onclick="exportFullBackup()">
+              <span class="material-icons-round">download</span> EXPORT COMPLETE BACKUP (JSON)
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Currency & Display Preferences</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Primary Currency</label>
+              <input type="text" class="form-control" value="INR (₹)" disabled>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Number Formatting</label>
+              <input type="text" class="form-control" value="Indian Format (e.g. ₹1,00,000)" disabled>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Category Modal -->
+  <div class="modal-overlay" id="cat-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Category</h3>
+        <button class="modal-close" onclick="closeModal('cat-modal')">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+
+      <form id="cat-form">
+        <div class="form-group">
+          <label class="form-label">Category Name *</label>
+          <input type="text" class="form-control" id="cat-name" placeholder="e.g. Food & Drinks, Shopping" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Type *</label>
+          <select class="form-control" id="cat-type" required>
+            <option value="EXPENSE">Expense</option>
+            <option value="INCOME">Income</option>
+            <option value="BOTH">Both</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Theme Color</label>
+          <input type="color" class="form-control" id="cat-color" value="#6366f1" style="height:40px;padding:2px">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('cat-modal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Category</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="app-bottom-nav"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+</html>
