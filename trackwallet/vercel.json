@@ -1,18 +1,25 @@
 {
-  "outputDirectory": "frontend",
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/frontend/index.html"
+    },
+    {
       "source": "/frontend",
-      "destination": "/index.html"
+      "destination": "/frontend/index.html"
     },
     {
       "source": "/frontend/",
-      "destination": "/index.html"
+      "destination": "/frontend/index.html"
     },
     {
-      "source": "/frontend/:path*",
-      "destination": "/:path*"
+      "source": "/index.html",
+      "destination": "/frontend/index.html"
+    },
+    {
+      "source": "/(?!frontend/)(.*)",
+      "destination": "/frontend/$1"
     }
   ]
 }
